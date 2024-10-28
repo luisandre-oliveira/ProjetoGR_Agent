@@ -37,7 +37,7 @@ public class Frame implements Serializable {
 
 
 
-        pdu = new Frame(parts[0], parts[1], parts[2], parts[3],);
+        pdu = new Frame(parts[0], parts[1], parts[2], parts[3],parts[4]);
 
         return pdu;
     }
