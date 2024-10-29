@@ -33,13 +33,34 @@ public class Frame implements Serializable {
     public CustomList getValueList() { return ValueList; }
     public CustomList getErrorList() { return ErrorList; }
 
+    public static String createPDU(String tag, char type, String timestamp, int mi, String iids, String values, String errors) {
+        return tag + "\0" + type + "\0" + timestamp + "\0" + mi + "\0" + iids + "\0" + values + "\0" + errors + "\0";
+    }
+
+    public static String createList(ArrayList<String> listElements) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append(listElements.size()).append("\0");
+
+        for (String listElement : listElements) {
+            stringBuilder.append(listElement);
+            stringBuilder.append("\0");
+        }
+
+        if (!stringBuilder.isEmpty() && stringBuilder.charAt(stringBuilder.length() - 1) == '\0') {
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        }
+
+        return stringBuilder.toString();
+    }
+
     public static Frame readPDU(String packet) {
         String[] splitPacket = packet.split("\0"); // 0 -> 3 is TAG TO MSGID // REST ARE LISTS, DEPENDING ON SIZE
 
         String tag; char type; LocalDateTime timestamp; int msgId;
         ArrayList<CustomList> bigList = new ArrayList<>(); // arraylist with the 3 lists, using readList()
 
-        if(splitPacket.length > 4) { // making sure it has any lists or it's just empty after (it should never be)
+        if(splitPacket.length > 4) { // making sure it has any lists, or it's just empty after (it should never be)
             String[] packetWithOnlyLists = Arrays.copyOfRange(splitPacket, 4, splitPacket.length); // get the lists part of the packet
             bigList = readList(packetWithOnlyLists);
         }
