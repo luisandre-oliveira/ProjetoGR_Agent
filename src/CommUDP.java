@@ -48,8 +48,10 @@ public class CommUDP {
 
         @Override
         public void run() {
+            // Convert the UDP packet into a String
             String packetToString = new String(receivedPacket.getData(),0, receivedPacket.getLength());
             System.out.println(packetToString);
+
             InetAddress clientAddress = receivedPacket.getAddress(); // address of the Manager
             int clientPort = receivedPacket.getPort(); // port of the Manager
 

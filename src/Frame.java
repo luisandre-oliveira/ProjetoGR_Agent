@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Frame implements Serializable {
     private final String Tag;
-    private final char Type;
+    private final String Type;
     private final LocalDateTime Timestamp;
     private final int MessageIdentifier;
     private final CustomList IIDList;
@@ -15,7 +15,7 @@ public class Frame implements Serializable {
     private final CustomList ErrorList;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss:SSS");
 
-    public Frame(String tag, char type, LocalDateTime time, int msgid, CustomList iidlist, CustomList valuelist, CustomList errorlist) {
+    public Frame(String tag, String type, LocalDateTime time, int msgid, CustomList iidlist, CustomList valuelist, CustomList errorlist) {
         this.Tag = tag;
         this.Type = type;
         this.Timestamp = time;
@@ -26,14 +26,14 @@ public class Frame implements Serializable {
     }
 
     public String getTag() { return this.Tag; }
-    public char getType() { return this.Type; }
+    public String getType() { return this.Type; }
     public LocalDateTime getTimestamp() { return Timestamp; }
     public int getMessageIdentifier() { return MessageIdentifier; }
     public CustomList getIIDList() { return IIDList; }
     public CustomList getValueList() { return ValueList; }
     public CustomList getErrorList() { return ErrorList; }
 
-    public static String createPDU(String tag, char type, String timestamp, int mi, String iids, String values, String errors) {
+    public static String createPDU(String tag, String type, String timestamp, int mi, String iids, String values, String errors) {
         return tag + "\0" + type + "\0" + timestamp + "\0" + mi + "\0" + iids + "\0" + values + "\0" + errors + "\0";
     }
 
@@ -57,7 +57,7 @@ public class Frame implements Serializable {
     public static Frame readPDU(String packet) {
         String[] splitPacket = packet.split("\0"); // 0 -> 3 is TAG TO MSGID // REST ARE LISTS, DEPENDING ON SIZE
 
-        String tag; char type; LocalDateTime timestamp; int msgId;
+        String tag; String type; LocalDateTime timestamp; int msgId;
         ArrayList<CustomList> bigList = new ArrayList<>(); // arraylist with the 3 lists, using readList()
 
         if(splitPacket.length > 4) { // making sure it has any lists, or it's just empty after (it should never be)
@@ -66,7 +66,7 @@ public class Frame implements Serializable {
         }
 
         tag = splitPacket[0];
-        type = splitPacket[1].charAt(0);
+        type = splitPacket[1];
         timestamp = LocalDateTime.parse(splitPacket[2], formatter);
         msgId = Integer.parseInt(splitPacket[3]);
 
