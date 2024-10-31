@@ -76,31 +76,34 @@ public class Frame implements Serializable {
     }
 
     public static ArrayList<CustomList> readList(String[] packet) {
-        int size_iids; int size_values; int size_errors;
-        ArrayList<String> temp_iid_array; ArrayList<String> temp_value_array; ArrayList<String> temp_error_array;
+        int size_iids, size_values, size_errors;
+        ArrayList<String> temp_iid_array, temp_value_array, temp_error_array;
 
-        size_iids = Integer.parseInt(packet[0]); // get nº of iids
-
+        // Process IIDs
+        size_iids = Integer.parseInt(packet[0]); // Get nº of iids
         if(size_iids > 0) {
             temp_iid_array = new ArrayList<>(Arrays.asList(packet).subList(1, size_iids + 1));
         } else {
             temp_iid_array = new ArrayList<>();
         }
 
-        packet = Arrays.copyOfRange(packet, 0, size_iids + 1);
+        // Update packet array to exclude the processed IID part
+        packet = Arrays.copyOfRange(packet, size_iids + 1, packet.length);
 
+        // Process Values
         size_values = Integer.parseInt(packet[0]);
-
         if(size_values > 0) {
             temp_value_array = new ArrayList<>(Arrays.asList(packet).subList(1, size_values + 1));
         } else {
             temp_value_array = new ArrayList<>();
         }
 
-        packet = Arrays.copyOfRange(packet, 0, size_values + 1);
+        // Update packet array to exclude the processed Values par
+        packet = Arrays.copyOfRange(packet, size_values + 1, packet.length);
 
+        // Process Errors
         size_errors = Integer.parseInt(packet[0]);
-        if(size_values > 0) {
+        if(size_errors > 0) {
             temp_error_array = new ArrayList<>(Arrays.asList(packet).subList(1, size_errors + 1));
         } else {
             temp_error_array = new ArrayList<>();
@@ -119,13 +122,13 @@ public class Frame implements Serializable {
 
 class CustomList implements Serializable {
     private final int numberElements;
-    private final List<String> listElements;
+    private final ArrayList<String> listElements;
 
-    public CustomList(int numberOfElements, List<String> listOfElements) {
+    public CustomList(int numberOfElements, ArrayList<String> listOfElements) {
         this.numberElements = numberOfElements;
         this.listElements = listOfElements;
     }
 
     public int getNumberElements() { return numberElements; }
-    public List<String> getListElements() { return listElements; }
+    public ArrayList<String> getListElements() { return listElements; }
 }
