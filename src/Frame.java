@@ -13,7 +13,9 @@ public class Frame implements Serializable {
     private final CustomList IIDList;
     private final CustomList ValueList;
     private final CustomList ErrorList;
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss:SSS");
+    public static final DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss:SSS");
+    public static final DateTimeFormatter packetFormatter = DateTimeFormatter.ofPattern("dd:MM:yyyy:HH:mm:ss:SSS");
+
 
     public Frame(String tag, String type, LocalDateTime time, int msgid, CustomList iidlist, CustomList valuelist, CustomList errorlist) {
         this.Tag = tag;
@@ -67,7 +69,7 @@ public class Frame implements Serializable {
 
         tag = splitPacket[0];
         type = splitPacket[1];
-        timestamp = LocalDateTime.parse(splitPacket[2], formatter);
+        timestamp = LocalDateTime.parse(splitPacket[2], packetFormatter);
         msgId = Integer.parseInt(splitPacket[3]);
 
         return new Frame(tag, type, timestamp, msgId, bigList.get(0), bigList.get(1), bigList.get(2));

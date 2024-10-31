@@ -11,7 +11,6 @@ public class CommUDP {
     private static final int MAX_BUFFER_SIZE = 1024;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss:SSS");
 
-
     public static void main(String[] args) {
         new CommUDP().startServer();
     }
@@ -60,7 +59,7 @@ public class CommUDP {
             LocalDateTime timestamp = LocalDateTime.now();
             Duration diff = Duration.between(packet.getTimestamp(), timestamp);
 
-            System.out.println("[" + timestamp.format(formatter) + ", Address: " + clientAddress + ", Port: " + clientPort + "]  " + packet.getType() + packet.getIIDList().getListElements());
+            System.out.println("[" + timestamp.format(Frame.displayFormatter) + ", Address: " + clientAddress + ", Port: " + clientPort + "]  " + packet.getType() + packet.getIIDList().getListElements());
             System.out.println("Time in transit: " + diff.toMillis() + " ms\n");
 
             // Repeat packet to Manager for testing
