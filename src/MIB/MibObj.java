@@ -23,4 +23,10 @@ public class MibObj {
     public String getIID() { return this.IID; }
     public String getValue() { return this.Value; }
 
+    public void setValue(String newValue) {
+        if(this.getAccess() == 1) {
+            this.Value = newValue;
+        }
+    }
+
 }

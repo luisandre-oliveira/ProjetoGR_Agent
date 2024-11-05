@@ -1,4 +1,6 @@
+import MIB.MibEntry;
 import MIB.MibImp;
+import MIB.MibObj;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -53,7 +55,6 @@ public class CommUDP {
 
             // Convert the UDP packet into a String
             String packetToString = new String(receivedPacket.getData(),0, receivedPacket.getLength());
-            System.out.println(packetToString);
 
             InetAddress clientAddress = receivedPacket.getAddress(); // address of the Manager
             int clientPort = receivedPacket.getPort(); // port of the Manager
@@ -68,21 +69,23 @@ public class CommUDP {
 
             // Prepare packet with values and send to Manager
             ArrayList<String> tempListOfValues = new ArrayList<>();
+            ArrayList<String> tempListOfErrors = new ArrayList<>();
 
             for(String key_iid: packet.getIIDList().getListElements()) {
-                tempListOfValues.add(instance.find(key_iid).getValue());
+                MibEntry obj = MibImp.findIID(key_iid);
+                if (obj != null) {
+                    tempListOfValues.add(obj.getValue());
+                } else {
+                    tempListOfErrors.add("5");
+                }
             }
-
-            System.out.println(tempListOfValues);
 
             String iid_list = Frame.createList(packet.getIIDList().getListElements());
             String value_list = Frame.createList(tempListOfValues);
-            String error_list = Frame.createList(new ArrayList<>());
+            String error_list = Frame.createList(tempListOfErrors);
 
             try {
                 sendPacket(serverSocket, clientAddress, clientPort, "R", iid_list, value_list, error_list);
-                System.out.println(value_list);
-                // System.out.println("Message sent"); // TODO to be commented
             } catch (IOException e) {
                 e.printStackTrace();
             }
