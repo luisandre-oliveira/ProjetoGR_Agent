@@ -1,10 +1,10 @@
 package MIB;
 
 public class MibObj {
-    private String Type;
-    private int Access; // define 0 as read-only and 1 as read-write
-    private String Description;
-    private String IID;
+    private final String Type;
+    private final int Access; // define 0 as read-only and 1 as read-write
+    private final String Description;
+    private final String IID;
     private String Value;
 
     public MibObj(String type, int access, String description, String iid, String value) {
@@ -14,8 +14,6 @@ public class MibObj {
         this.IID = iid;
         this.Value = value;
     }
-
-    // TODO adicionar public sets
 
     public String getType() { return this.Type; }
     public int getAccess() { return this.Access; }
@@ -28,5 +26,4 @@ public class MibObj {
             this.Value = newValue;
         }
     }
-
 }

@@ -4,12 +4,12 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Actuator implements MibEntry{
-    private MibObj id;
-    private MibObj type;
+public class Actuator implements MibEntry {
+    private final MibObj id;
+    private final MibObj type;
     private MibObj status; // percentage between minValue and maxValue
-    private MibObj minValue;
-    private MibObj maxValue;
+    private final MibObj minValue;
+    private final MibObj maxValue;
     private MibObj lastControlTime;
 
     public Actuator(String id, String type, int status, int minValue, int maxValue, LocalDateTime lastControlTime) {
@@ -40,12 +40,12 @@ public class Actuator implements MibEntry{
         Field[] fields = this.getClass().getDeclaredFields();
 
         for (Field field : fields) {
-            if (field.getType() == MibObj.class) {
+            if (field.getType() == MibObj.class) { // Check if it is a MibObj class object
                 try {
                     field.setAccessible(true);
-                    MibObj mibObj = (MibObj) field.get(this);
+                    MibObj mibObj = (MibObj) field.get(this); // Get the specific object of each field ex: Id, Type, etc...
 
-                    if (Objects.equals(mibObj.getIID(), structure + "." + object)) {
+                    if (Objects.equals(mibObj.getIID(), structure + "." + object)) { // Check if the object IID equals the IID we're looking for
                         return mibObj.getValue();
                     }
                 } catch (IllegalAccessException e) {
@@ -56,8 +56,23 @@ public class Actuator implements MibEntry{
         return null;
     }
 
-    @Override
-    public String getIID() { // TODO
-        return null;
+    public void setValue(int structure, int object) {
+        // Get all declared fields of this class
+        Field[] fields = this.getClass().getDeclaredFields();
+
+        for (Field field : fields) {
+            if (field.getType() == MibObj.class) { // Check if it is a MibObj class object
+                try {
+                    field.setAccessible(true);
+                    MibObj mibObj = (MibObj) field.get(this); // Get the specific object of each field ex: Id, Type, etc...
+
+                    if (Objects.equals(mibObj.getIID(), structure + "." + object)) { // Check if the object IID equals the IID we're looking for
+                        // TODO
+                    }
+                } catch (IllegalAccessException e) {
+                    System.out.println("Unable to access field: " + field.getName());
+                }
+            }
+        }
     }
 }

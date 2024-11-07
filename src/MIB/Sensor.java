@@ -4,12 +4,12 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Sensor implements MibEntry{
-    private MibObj id;
-    private MibObj type;
+public class Sensor implements MibEntry {
+    private final MibObj id;
+    private final MibObj type;
     private MibObj status; // percentage between minValue and maxValue
-    private MibObj minValue;
-    private MibObj maxValue;
+    private final MibObj minValue;
+    private final MibObj maxValue;
     private MibObj lastSamplingTime;
 
     public Sensor(String id, String type, int status, int minValue, int maxValue, LocalDateTime lastSamplingTime) {
@@ -66,12 +66,12 @@ public class Sensor implements MibEntry{
         Field[] fields = this.getClass().getDeclaredFields();
 
         for (Field field : fields) {
-            if (field.getType() == MibObj.class) {
+            if (field.getType() == MibObj.class) { // Check if it is a MibObj class object
                 try {
                     field.setAccessible(true);
-                    MibObj mibObj = (MibObj) field.get(this);
+                    MibObj mibObj = (MibObj) field.get(this); // Get the specific object of each field ex: Id, Type, etc...
 
-                    if (Objects.equals(mibObj.getIID(), structure + "." + object)) {
+                    if (Objects.equals(mibObj.getIID(), structure + "." + object)) { // Check if the object IID equals the IID we're looking for
                         return mibObj.getValue();
                     }
                 } catch (IllegalAccessException e) {
@@ -80,9 +80,5 @@ public class Sensor implements MibEntry{
             }
         }
         return null;
-    }
-     @Override
-     public String getIID() { // TODO
-         return null;
     }
 }

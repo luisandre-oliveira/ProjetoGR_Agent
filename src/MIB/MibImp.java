@@ -3,7 +3,6 @@ package MIB;
 import java.lang.reflect.Field;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -83,7 +82,6 @@ public class MibImp {
     }
 
     public static synchronized String findValueByIID(String iid) {
-        //System.out.println("INITIALLY: " + iid);
         String[] iidParts = iid.split("\\.");
 
         // Parse each part, checking if it exists, if not assign it to -1
@@ -91,8 +89,6 @@ public class MibImp {
         int object = (iidParts.length > 1) ? Integer.parseInt(iidParts[1]) : -1;
         int index1 = (iidParts.length > 2) ? Integer.parseInt(iidParts[2]) : -1;
         int index2 = (iidParts.length > 3) ? Integer.parseInt(iidParts[3]) : -1;
-
-        //System.out.println("PARTS: " + structure + "." + object + "." + index1 + "." + index2);
 
         if(structure > 0 && object == 0 && index1 == -1 && index2 == -1) { // GET p.e. 3.0
             return String.valueOf(getNumberOfAttributesInClass(structure));
@@ -117,7 +113,6 @@ public class MibImp {
         } else if (structure == -1 || object == -1) { // BOTH OF THEM ARE ERRORS THAT NEED TO BE HANDLED
             // TODO CHANGE ERROR LIST TO INCLUDE A 5 -> INVALID IID
         }
-        // TODO MORE EDGE CASES + WHAT IS SUPPOSED TO HAPPEN
 
         return String.valueOf(-1);
     }
@@ -143,8 +138,6 @@ public class MibImp {
         MIB.put(sensorTemp.getId().getValue(),sensorTemp);
         MIB.put(actuatorLight.getId().getValue(),actuatorLight);
         MIB.put(actuatorTemp.getId().getValue(),actuatorTemp);
-
-        System.out.println(MIB);
     }
 
     private LocalDateTime calculateUpTime(long time) {

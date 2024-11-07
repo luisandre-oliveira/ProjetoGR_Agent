@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Device implements MibEntry {
-    private MibObj id;
-    private MibObj type;
+    private final MibObj id;
+    private final MibObj type;
     private MibObj beaconRate;
     private MibObj nSensors;
     private MibObj nActuators;
@@ -51,22 +51,17 @@ public class Device implements MibEntry {
     public MibObj getReset() { return reset; }
 
     @Override
-    public String getIID() {
-        return null;
-    }
-
-    @Override
     public String getValue(int structure, int object) {
         // Get all declared fields of this class
         Field[] fields = this.getClass().getDeclaredFields();
 
         for (Field field : fields) {
-            if (field.getType() == MibObj.class) {
+            if (field.getType() == MibObj.class) { // Check if it is a MibObj class object
                 try {
                     field.setAccessible(true);
-                    MibObj mibObj = (MibObj) field.get(this);
+                    MibObj mibObj = (MibObj) field.get(this); // Get the specific object of each field ex: Id, Type, etc...
 
-                    if (Objects.equals(mibObj.getIID(), structure + "." + object)) {
+                    if (Objects.equals(mibObj.getIID(), structure + "." + object)) { // Check if the object IID equals the IID we're looking for
                         return mibObj.getValue();
                     }
                 } catch (IllegalAccessException e) {

@@ -65,31 +65,55 @@ public class CommUDP {
             LocalDateTime timestamp = LocalDateTime.now();
             Duration diff = Duration.between(framedPacket.getTimestamp(), timestamp);
 
-            System.out.println("[" + timestamp.format(Frame.displayFormatter) + ", Address: " + clientAddress + ", Port: " + clientPort + "]  " + framedPacket.getType() + framedPacket.getIIDList().getListElements());
+            System.out.println("[" + timestamp.format(Frame.displayFormatter) + ", Address: " + clientAddress + ", Port: " + clientPort + "]  "
+                    + framedPacket.getType() + framedPacket.getIIDList().getListElements() + framedPacket.getValueList().getListElements());
             System.out.println("Time in transit: " + diff.toMillis() + " ms\n");
 
-            // Prepare packet with values and send to Manager
             ArrayList<String> tempListOfValues = new ArrayList<>();
             ArrayList<String> tempListOfErrors = new ArrayList<>();
 
-            for(String key_iid: framedPacket.getIIDList().getListElements()) {
-                String valueOfIID = MibImp.findValueByIID(key_iid);
-                if (!Objects.equals(valueOfIID, "-1")) {
-                    tempListOfValues.add(String.valueOf(valueOfIID));
-                } else {
-                    tempListOfErrors.add("5");
-                }
+            switch (framedPacket.getType()) {
+
+                case "G":
+
+                    // Prepare packet with values and send to Manager
+                    tempListOfValues = new ArrayList<>();
+                    tempListOfErrors = new ArrayList<>();
+
+                    for(String key_iid: framedPacket.getIIDList().getListElements()) {
+                        String valueOfIID = MibImp.findValueByIID(key_iid);
+                        if (!Objects.equals(valueOfIID, "-1")) {
+                            tempListOfValues.add(String.valueOf(valueOfIID));
+                        } else {
+                            tempListOfErrors.add("5");
+                        }
+                    }
+
+                    String iid_list = Frame.createList(framedPacket.getIIDList().getListElements());
+                    String value_list = Frame.createList(tempListOfValues);
+                    String error_list = Frame.createList(tempListOfErrors);
+
+                    try {
+                        sendPacket(serverSocket, clientAddress, clientPort, "R", iid_list, value_list, error_list);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+
+                case "S":
+
+                    // Prepare packet with values and send to Manager
+                    tempListOfValues = new ArrayList<>();
+                    tempListOfErrors = new ArrayList<>();
+
+
+
+                    break;
+
+                default:
+
             }
 
-            String iid_list = Frame.createList(framedPacket.getIIDList().getListElements());
-            String value_list = Frame.createList(tempListOfValues);
-            String error_list = Frame.createList(tempListOfErrors);
-
-            try {
-                sendPacket(serverSocket, clientAddress, clientPort, "R", iid_list, value_list, error_list);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
 
     }
