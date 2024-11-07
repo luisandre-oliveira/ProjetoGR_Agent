@@ -1,22 +1,24 @@
 package MIB;
 
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Sensor implements MibEntry{
     private MibObj id;
     private MibObj type;
-    private MibObj status;
+    private MibObj status; // percentage between minValue and maxValue
     private MibObj minValue;
     private MibObj maxValue;
     private MibObj lastSamplingTime;
 
     public Sensor(String id, String type, int status, int minValue, int maxValue, LocalDateTime lastSamplingTime) {
-        this.id = new MibObj("String",0,"Tag identifying the sensor","2.1",id);
-        this.type = new MibObj("String",0,"Text description for the type of sensor","2.2",type);
-        this.status = new MibObj("Integer",0,"Last value sampled in percent of range","2.3",String.valueOf(status));
-        this.minValue = new MibObj("Integer",0,"Minimum value possible for the sampling values of the sensor","2.4",String.valueOf(minValue));
-        this.maxValue = new MibObj("Integer",0,"Maximum value possible for the sampling values of the sensor","2.5",String.valueOf(maxValue));
-        this.lastSamplingTime = new MibObj("Timestamp",0,"TTime elapsed since the last sample was obtained by the sensor","2.6",String.valueOf(lastSamplingTime));
+        this.id = new MibObj("String", 0, "Tag identifying the sensor", "2.1", id);
+        this.type = new MibObj("String", 0, "Text description for the type of sensor", "2.2", type);
+        this.status = new MibObj("Integer", 0, "Last value sampled in percent of range", "2.3", String.valueOf(status));
+        this.minValue = new MibObj("Integer", 0, "Minimum value possible for the sampling values of the sensor", "2.4", String.valueOf(minValue));
+        this.maxValue = new MibObj("Integer", 0, "Maximum value possible for the sampling values of the sensor", "2.5", String.valueOf(maxValue));
+        this.lastSamplingTime = new MibObj("Timestamp", 0, "TTime elapsed since the last sample was obtained by the sensor", "2.6", String.valueOf(lastSamplingTime));
     }
 
     /* private int generateInitialLightValue() {
@@ -46,28 +48,38 @@ public class Sensor implements MibEntry{
     */
 
     // Getters
-    public String getId() {
-        return id.getValue();
-    }
-    public MibObj getType() {
-        return type;
-    }
-    public MibObj getStatus() {
-        return status;
-    }
-    public MibObj getMinValue() {
-        return minValue;
-    }
-    public MibObj getMaxValue() {
-        return maxValue;
-    }
-    public MibObj getLastSamplingTime() {
-        return lastSamplingTime;
-    }
+    public MibObj getId() { return id; }
+
+    public MibObj getType() { return type; }
+
+    public MibObj getStatus() { return status; }
+
+    public MibObj getMinValue() { return minValue; }
+
+    public MibObj getMaxValue() { return maxValue; }
+
+    public MibObj getLastSamplingTime() { return lastSamplingTime; }
 
     @Override
-    public String getValue() {
-        return getStatus().getValue();
+    public String getValue(int structure, int object) {
+        // Get all declared fields of this class
+        Field[] fields = this.getClass().getDeclaredFields();
+
+        for (Field field : fields) {
+            if (field.getType() == MibObj.class) {
+                try {
+                    field.setAccessible(true);
+                    MibObj mibObj = (MibObj) field.get(this);
+
+                    if (Objects.equals(mibObj.getIID(), structure + "." + object)) {
+                        return mibObj.getValue();
+                    }
+                } catch (IllegalAccessException e) {
+                    System.out.println("Unable to access field: " + field.getName());
+                }
+            }
+        }
+        return null;
     }
      @Override
      public String getIID() { // TODO
