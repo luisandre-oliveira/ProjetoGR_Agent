@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class MibImp {
-    private Map<String,MibEntry> MIB; // String is for the MAC Address of the Sensor or Actuator
+    private final Map<String,MibEntry> MIB; // String is for the MAC Address of the Sensor or Actuator
     private static MibImp instance; // Singleton design pattern implementation
 
     private static int getNumberOfAttributesInClass(int structure) {
@@ -93,7 +93,6 @@ public class MibImp {
 
         // Loop through the MIB entries
         for (MibEntry entry : instance.MIB.values()) {
-            System.out.println(entry.getId().getValue());
             // Check if the entry is of the correct type
             if(classToCheck.isInstance(entry)) {
                 // Check if the current index matches the desired index
@@ -105,20 +104,65 @@ public class MibImp {
 
                         case 1 :
                             Device oldDevice = (Device) entry;
+
+                            Device newDevice = switch (object) {
+
+                                case 3 -> new Device(
+                                        oldDevice.getId().getValue(),
+                                        oldDevice.getType().getValue(),
+                                        Integer.parseInt(value), // change to beaconRate value
+                                        Integer.parseInt(oldDevice.getNSensors().getValue()),
+                                        Integer.parseInt(oldDevice.getNActuators().getValue()),
+                                        LocalDateTime.parse(oldDevice.getDateAndTime().getValue()),
+                                        LocalDateTime.parse(oldDevice.getUpTime().getValue()),
+                                        LocalDateTime.parse(oldDevice.getLastTimeUpdated().getValue()),
+                                        Integer.parseInt(oldDevice.getOperationalStatus().getValue()),
+                                        Integer.parseInt(oldDevice.getReset().getValue()));
+
+                                case 6 -> new Device(
+                                        oldDevice.getId().getValue(),
+                                        oldDevice.getType().getValue(),
+                                        Integer.parseInt(oldDevice.getBeaconRate().getValue()),
+                                        Integer.parseInt(oldDevice.getNSensors().getValue()),
+                                        Integer.parseInt(oldDevice.getNActuators().getValue()),
+                                        LocalDateTime.parse(value), // change to dateAndTime value
+                                        LocalDateTime.parse(oldDevice.getUpTime().getValue()),
+                                        LocalDateTime.parse(oldDevice.getLastTimeUpdated().getValue()),
+                                        Integer.parseInt(oldDevice.getOperationalStatus().getValue()),
+                                        Integer.parseInt(oldDevice.getReset().getValue()));
+
+                                case 10 -> new Device(
+                                        oldDevice.getId().getValue(),
+                                        oldDevice.getType().getValue(),
+                                        Integer.parseInt(oldDevice.getBeaconRate().getValue()),
+                                        Integer.parseInt(oldDevice.getNSensors().getValue()),
+                                        Integer.parseInt(oldDevice.getNActuators().getValue()),
+                                        LocalDateTime.parse(oldDevice.getDateAndTime().getValue()),
+                                        LocalDateTime.parse(oldDevice.getUpTime().getValue()),
+                                        LocalDateTime.parse(oldDevice.getLastTimeUpdated().getValue()),
+                                        Integer.parseInt(oldDevice.getOperationalStatus().getValue()),
+                                        Integer.parseInt(value)); // change to reset value
+
+                                default -> throw new IllegalStateException("Unexpected value: " + object);
+                            };
+
+                            instance.MIB.put(entryId, newDevice);
                             break;
 
                         case 3 :
                             Actuator oldActuator = (Actuator) entry;
-                            Actuator newActuator = new Actuator(oldActuator.getId().getValue(), oldActuator.getType().getValue(), Integer.parseInt(value),
-                                    Integer.parseInt(oldActuator.getMinValue().getValue()), Integer.parseInt(oldActuator.getMaxValue().getValue()),
-                                    LocalDateTime.parse(oldActuator.getLastControlTime().getValue()));
+
+                            Actuator newActuator = new Actuator(
+                                    oldActuator.getId().getValue(),
+                                    oldActuator.getType().getValue(),
+                                    Integer.parseInt(value),
+                                    Integer.parseInt(oldActuator.getMinValue().getValue()),
+                                    Integer.parseInt(oldActuator.getMaxValue().getValue()),
+                                    LocalDateTime.now());
 
                             instance.MIB.put(entryId, newActuator);
                             break;
-
                     }
-
-                    System.out.println("Updated Entry = " + instance.MIB.get(entryId).getId().getValue());
                 }
                 count++;
             }
@@ -155,15 +199,15 @@ public class MibImp {
             return getInstanceOfObject(structure,object,index1 - 1);
 
         } else if (structure > 0 && object > 0 && index1 == 0 && index2 == 0) { // GET p.e. 3.1.0.0
-            // TODO GET VALUES OF ALL INSTANCES, MAKE A STRING WITH ALL VALUES, THEN PARSE (MAYBE???)
+            // TODO: GET VALUES OF ALL INSTANCES, MAKE A STRING WITH ALL VALUES, THEN PARSE (MAYBE???)
             System.out.println("E ->" + structure + "." + object + "." + index1 + "." + index2);
 
         } else if (structure > 0 && object > 0 && index1 == 0 && index2 > index1) { // GET 3.1.1.2
-            // TODO GET ALL VALUES OF ALL INSTANCES IN THE RANGE OF INDEX_1 TO INDEX_2
+            // TODO: GET ALL VALUES OF ALL INSTANCES IN THE RANGE OF INDEX_1 TO INDEX_2
             System.out.println("F ->" + structure + "." + object + "." + index1 + "." + index2);
 
         } else if (structure == -1 || object == -1) { // BOTH OF THEM ARE ERRORS THAT NEED TO BE HANDLED
-            // TODO CHANGE ERROR LIST TO INCLUDE A 5 -> INVALID IID
+            // TODO: CHANGE ERROR LIST TO INCLUDE A 5 -> INVALID IID
             System.out.println("\n-- ERROR: INVALID IID. --");
         }
 
@@ -203,18 +247,12 @@ public class MibImp {
         long minutes = time /60;
         long seconds = time % 60;
 
-        LocalDateTime timeAsLocalDateTime = LocalDateTime.of(0,1,1,0,0)
+        return LocalDateTime.of(0,1,1,0,0)
                 .plusDays(days)
                 .plusHours(hours)
                 .plusMinutes(minutes)
                 .plusSeconds(seconds);
-
-        return timeAsLocalDateTime;
     }
-
-    /*public synchronized update(String s) {
-
-    }*/
 
     /* private int generateInitialLightValue() {
         // Generates a value between 0 and 800 Lux

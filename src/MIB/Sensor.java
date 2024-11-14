@@ -7,10 +7,10 @@ import java.util.Objects;
 public class Sensor implements MibEntry {
     private final MibObj id;
     private final MibObj type;
-    private MibObj status; // percentage between minValue and maxValue
+    private final MibObj status; // percentage between minValue and maxValue
     private final MibObj minValue;
     private final MibObj maxValue;
-    private MibObj lastSamplingTime;
+    private final MibObj lastSamplingTime;
 
     public Sensor(String id, String type, int status, int minValue, int maxValue, LocalDateTime lastSamplingTime) {
         this.id = new MibObj("String", 0, "Tag identifying the sensor", "2.1", id);

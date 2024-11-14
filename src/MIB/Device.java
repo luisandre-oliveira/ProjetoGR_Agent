@@ -7,14 +7,14 @@ import java.util.Objects;
 public class Device implements MibEntry {
     private final MibObj id;
     private final MibObj type;
-    private MibObj beaconRate;
-    private MibObj nSensors;
-    private MibObj nActuators;
-    private MibObj dateAndTime;
-    private MibObj upTime;
-    private MibObj lastTimeUpdated;
-    private MibObj operationalStatus;
-    private MibObj reset;
+    private final MibObj beaconRate;
+    private final MibObj nSensors;
+    private final MibObj nActuators;
+    private final MibObj dateAndTime;
+    private final MibObj upTime;
+    private final MibObj lastTimeUpdated;
+    private final MibObj operationalStatus;
+    private final MibObj reset;
 
     public Device(String id, String type, int beaconRate, int nSensors, int nActuators, LocalDateTime dateAndTime,
                   LocalDateTime upTime, LocalDateTime lastTimeUpdated, int operationalStatus, int reset) {

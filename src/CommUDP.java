@@ -69,8 +69,8 @@ public class CommUDP {
                     + framedPacket.getType() + framedPacket.getIIDList().getListElements() + framedPacket.getValueList().getListElements());
             System.out.println("Time in transit: " + diff.toMillis() + " ms\n");
 
-            ArrayList<String> tempListOfValues = new ArrayList<>();
-            ArrayList<String> tempListOfErrors = new ArrayList<>();
+            ArrayList<String> tempListOfValues;
+            ArrayList<String> tempListOfErrors;
 
             switch (framedPacket.getType()) {
 
@@ -136,6 +136,8 @@ public class CommUDP {
 
                 Thread clientHandler = new Thread(new ClientHandler(serverSocket,receivedDatagramPacketFromSocket));
                 clientHandler.start();
+
+                //TODO: ADD A METHOD SOMEWHERE TO UPDATE TO THE SENSORS VALUES TO GET TO THE ACTUATORS VALUES, I'LL NEED A NEW THREAD AND WHAT THAT IMPLICATES
             }
 
         } catch (IOException e) {
