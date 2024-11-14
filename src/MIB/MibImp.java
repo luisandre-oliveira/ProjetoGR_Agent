@@ -50,7 +50,7 @@ public class MibImp {
         return count;
     }
 
-    private static String getInstance(int structure, int object, int index1) {
+    private static String getInstanceOfObject(int structure, int object, int index1) {
         // Choose the class to inspect based on structure value
         Class<?> classToCheck = switch (structure) {
             case 1 -> Device.class;
@@ -70,8 +70,59 @@ public class MibImp {
             }
         }
 
-
         return null;
+    }
+
+    public static void setInstanceOfObject(String iid, String value) {
+        String[] iidParts = iid.split("\\.");
+
+        // Parse each part, checking if it exists, if not assign it to -1
+        int structure = (iidParts.length > 0) ? Integer.parseInt(iidParts[0]) : -1;
+        int object = (iidParts.length > 1) ? Integer.parseInt(iidParts[1]) : -1;
+        int index1 = (iidParts.length > 2) ? Integer.parseInt(iidParts[2]) -1 : -1;
+
+        // Choose the class to inspect based on structure value
+        Class<?> classToCheck = switch (structure) {
+            case 1 -> Device.class;
+            case 2 -> Sensor.class;
+            case 3 -> Actuator.class;
+            default -> throw new IllegalStateException("Unexpected value: " + structure);
+        };
+
+        int count = 0;
+
+        // Loop through the MIB entries
+        for (MibEntry entry : instance.MIB.values()) {
+            System.out.println(entry.getId().getValue());
+            // Check if the entry is of the correct type
+            if(classToCheck.isInstance(entry)) {
+                // Check if the current index matches the desired index
+                if(count == index1) {
+
+                    String entryId = entry.getId().getValue();
+
+                    switch (structure) {
+
+                        case 1 :
+                            Device oldDevice = (Device) entry;
+                            break;
+
+                        case 3 :
+                            Actuator oldActuator = (Actuator) entry;
+                            Actuator newActuator = new Actuator(oldActuator.getId().getValue(), oldActuator.getType().getValue(), Integer.parseInt(value),
+                                    Integer.parseInt(oldActuator.getMinValue().getValue()), Integer.parseInt(oldActuator.getMaxValue().getValue()),
+                                    LocalDateTime.parse(oldActuator.getLastControlTime().getValue()));
+
+                            instance.MIB.put(entryId, newActuator);
+                            break;
+
+                    }
+
+                    System.out.println("Updated Entry = " + instance.MIB.get(entryId).getId().getValue());
+                }
+                count++;
+            }
+        }
     }
 
     public static MibImp getInstance() {
@@ -94,13 +145,14 @@ public class MibImp {
             return String.valueOf(getNumberOfAttributesInClass(structure));
 
         } else if (structure > 0 && object > 0 && index1 == -1 && index2 == -1) { // GET p.e 3.1 -> 3.1.1
-            return getInstance(structure,object,0);
+            return getInstanceOfObject(structure,object,0);
 
         } else if (structure > 0 && object > 0 && index1 == 0 && index2 == -1) { // GET p.e. 3.1.0
             return String.valueOf(getNumberOfInstances(structure));
 
         } else if (structure > 0 && object > 0 && index1 > 0 && index2 == -1) { // GET p.e. 3.1.1
-            return getInstance(structure,object,index1 - 1);
+            // take 1 from index1 because it is stored in a [0,1] not as a [1,2]
+            return getInstanceOfObject(structure,object,index1 - 1);
 
         } else if (structure > 0 && object > 0 && index1 == 0 && index2 == 0) { // GET p.e. 3.1.0.0
             // TODO GET VALUES OF ALL INSTANCES, MAKE A STRING WITH ALL VALUES, THEN PARSE (MAYBE???)
@@ -112,6 +164,7 @@ public class MibImp {
 
         } else if (structure == -1 || object == -1) { // BOTH OF THEM ARE ERRORS THAT NEED TO BE HANDLED
             // TODO CHANGE ERROR LIST TO INCLUDE A 5 -> INVALID IID
+            System.out.println("\n-- ERROR: INVALID IID. --");
         }
 
         return String.valueOf(-1);

@@ -106,7 +106,11 @@ public class CommUDP {
                     tempListOfValues = new ArrayList<>();
                     tempListOfErrors = new ArrayList<>();
 
+                    String valueOfIID = MibImp.findValueByIID(framedPacket.getIIDList().getListElements().get(0));
 
+                    if(!Objects.equals(valueOfIID, "-1")) {
+                        MibImp.setInstanceOfObject(framedPacket.getIIDList().getListElements().get(0), framedPacket.getValueList().getListElements().get(0));
+                    }
 
                     break;
 
