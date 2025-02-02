@@ -10,6 +10,10 @@ public class MibImp {
     private final Map<String,MibEntry> MIB; // String is for the MAC Address of the Sensor or Actuator
     private static MibImp instance; // Singleton design pattern implementation
 
+    public Map<String,MibEntry> getMIB() {
+        return MIB;
+    }
+
     private static int getNumberOfAttributesInClass(int structure) {
         // Choose the class to inspect based on structure value
         Class<?> classToCheck = switch (structure) {
@@ -102,7 +106,7 @@ public class MibImp {
 
                     switch (structure) {
 
-                        case 1 :
+                        case 1 : // In case the value I'm setting if of a Device
                             Device oldDevice = (Device) entry;
 
                             Device newDevice = switch (object) {
@@ -149,7 +153,7 @@ public class MibImp {
                             instance.MIB.put(entryId, newDevice);
                             break;
 
-                        case 3 :
+                        case 3 : // In case the value I'm setting if of an Actuator
                             Actuator oldActuator = (Actuator) entry;
 
                             Actuator newActuator = new Actuator(
@@ -207,7 +211,10 @@ public class MibImp {
             System.out.println("F ->" + structure + "." + object + "." + index1 + "." + index2);
 
         } else if (structure == -1 || object == -1) { // BOTH OF THEM ARE ERRORS THAT NEED TO BE HANDLED
-            // TODO: CHANGE ERROR LIST TO INCLUDE A 5 -> INVALID IID
+            // Error handling is done when it returns to the function
+            // that calls this one, since it will return '-1',
+            // so a 5 will be sent to the ErrorList
+            // (check CommUDP.java for the G case inside the switch)
             System.out.println("\n-- ERROR: INVALID IID. --");
         }
 
@@ -226,7 +233,7 @@ public class MibImp {
 
         Device device = new Device("FF:FF:FF:FF:FF:FF","Lights & A/C Conditioning",10,2,2,initTimeDS,calculateUpTime(timeDiff),initTimeDS,1,0); // beaconRate = 10 seconds
         Sensor sensorLight = new Sensor("00:11:22:33:44:55","Light",25,0,800,initTimeDS); // 200 LUMENS
-        Sensor sensorTemp = new Sensor("99:88:77:66:55:44","Temperature",40,-10,40,initTimeDS); // 10 ºC
+        Sensor sensorTemp = new Sensor("99:88:77:66:55:44","Temperature",80,-10,40,initTimeDS); // 10 ºC
         Actuator actuatorLight = new Actuator("AA:BB:CC:DD:EE:FF","Light",75,0,800,initTimeA); // 600 LUMENS
         Actuator actuatorTemp = new Actuator("FF:EE:DD:CC:BB:AA","Temperature",60,-10,40,initTimeA); // 20 ºC
 
@@ -253,11 +260,5 @@ public class MibImp {
                 .plusMinutes(minutes)
                 .plusSeconds(seconds);
     }
-
-    /* private int generateInitialLightValue() {
-        // Generates a value between 0 and 800 Lux
-        return (int) (this.getMinValue() + random.nextDouble() * 900);
-    }*/
-
 
 }

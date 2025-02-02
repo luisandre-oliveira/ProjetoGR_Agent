@@ -29,18 +29,6 @@ public class CommUDP {
         }
     }
 
-    private static void receivePacket(DatagramSocket serverSocket) throws IOException {
-        byte[] buffer = new byte[MAX_BUFFER_SIZE];
-        DatagramPacket receivePacket = new DatagramPacket(buffer, MAX_BUFFER_SIZE);
-        serverSocket.receive(receivePacket);
-
-        InetAddress serverAddress = receivePacket.getAddress();
-        int serverPort = receivePacket.getPort();
-
-        Frame packet = Frame.readPDU(new String(receivePacket.getData(), 0, receivePacket.getLength()));
-        System.out.println("Received packet from Agent with Address: " + serverAddress + ", Port: " + serverPort + "]  " + packet.getType() + packet.getIIDList().getListElements());
-    }
-
     private static class ClientHandler implements Runnable {
         private final DatagramSocket serverSocket;
         private final DatagramPacket receivedPacket;
@@ -52,7 +40,7 @@ public class CommUDP {
 
         @Override
         public void run() {
-            MibImp instance = MibImp.getInstance();
+            MibImp instance = MibImp.getInstance(); // included to force the singleton design pattern
 
             // Convert the UDP packet into a String
             String packetToString = new String(receivedPacket.getData(),0, receivedPacket.getLength());
@@ -102,10 +90,7 @@ public class CommUDP {
 
                 case "S":
 
-                    // Prepare packet with values and send to Manager
-                    tempListOfValues = new ArrayList<>();
-                    tempListOfErrors = new ArrayList<>();
-
+                    // valueOfIID is the value the iid holds. Ex: default value in 3.3.1 is 75
                     String valueOfIID = MibImp.findValueByIID(framedPacket.getIIDList().getListElements().get(0));
 
                     if(!Objects.equals(valueOfIID, "-1")) {
@@ -126,6 +111,10 @@ public class CommUDP {
         try (DatagramSocket serverSocket = new DatagramSocket(PORT)){
             System.out.println("\nAgent is working on port " + PORT + "\n");
 
+            Thread simulatorThread = new Thread(new Simulator());
+            simulatorThread.setDaemon(true); // Set as daemon thread, so it stops with the main program
+            simulatorThread.start();
+
             // Loop to continuously receive incoming packets
             while (true) {
                 byte[] buffer = new byte[MAX_BUFFER_SIZE];
@@ -136,8 +125,6 @@ public class CommUDP {
 
                 Thread clientHandler = new Thread(new ClientHandler(serverSocket,receivedDatagramPacketFromSocket));
                 clientHandler.start();
-
-                //TODO: ADD A METHOD SOMEWHERE TO UPDATE TO THE SENSORS VALUES TO GET TO THE ACTUATORS VALUES, I'LL NEED A NEW THREAD AND WHAT THAT IMPLICATES
             }
 
         } catch (IOException e) {
