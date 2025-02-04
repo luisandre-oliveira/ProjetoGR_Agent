@@ -173,6 +173,38 @@ public class MibImp {
         }
     }
 
+    public static String getAllValues(int structure, int object) {
+        StringBuilder toSend = new StringBuilder();
+
+        for(int N = 0; N < getNumberOfInstances(structure); N++) {
+            toSend.append(getInstanceOfObject(structure, object, N));
+            toSend.append(",");
+        }
+
+        if(!toSend.isEmpty()) {
+            toSend.deleteCharAt(toSend.length() - 1);
+        }
+
+        return toSend.toString();
+    }
+
+    public static String getAllValuesInRange(int structure, int object, int index1, int index2) {
+        StringBuilder toSend = new StringBuilder();
+
+        int numberIndexsToBeSearched = index2 - index1 + 1; // ex: 3.1.1.2 -> 2 - 1 + 1 = 2 (obv there's only two in this case and project)
+
+        for(int N = 0; N < numberIndexsToBeSearched; N++) {
+            toSend.append(getInstanceOfObject(structure,object,N));
+            toSend.append(",");
+        }
+
+        if(!toSend.isEmpty()) {
+            toSend.deleteCharAt(toSend.length() - 1);
+        }
+
+        return toSend.toString();
+    }
+
     public static MibImp getInstance() {
         if (instance == null) {
             instance = new MibImp();  // Initialize if not yet created
@@ -203,12 +235,11 @@ public class MibImp {
             return getInstanceOfObject(structure,object,index1 - 1);
 
         } else if (structure > 0 && object > 0 && index1 == 0 && index2 == 0) { // GET p.e. 3.1.0.0
-            // TODO: GET VALUES OF ALL INSTANCES, MAKE A STRING WITH ALL VALUES, THEN PARSE (MAYBE???)
-            System.out.println("E ->" + structure + "." + object + "." + index1 + "." + index2);
+            return getAllValues(structure, object);
 
-        } else if (structure > 0 && object > 0 && index1 == 0 && index2 > index1) { // GET 3.1.1.2
-            // TODO: GET ALL VALUES OF ALL INSTANCES IN THE RANGE OF INDEX_1 TO INDEX_2
-            System.out.println("F ->" + structure + "." + object + "." + index1 + "." + index2);
+
+        } else if (structure > 0 && object > 0 && index1 != 0 && index2 > index1) { // GET 3.1.1.2
+            return getAllValuesInRange(structure,object,index1,index2);
 
         } else if (structure == -1 || object == -1) { // BOTH OF THEM ARE ERRORS THAT NEED TO BE HANDLED
             // Error handling is done when it returns to the function

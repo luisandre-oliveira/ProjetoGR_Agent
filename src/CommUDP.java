@@ -71,7 +71,17 @@ public class CommUDP {
                     for(String key_iid: framedPacket.getIIDList().getListElements()) {
                         String valueOfIID = MibImp.findValueByIID(key_iid);
                         if (!Objects.equals(valueOfIID, "-1")) {
-                            tempListOfValues.add(String.valueOf(valueOfIID));
+
+                            if(valueOfIID.contains(",")){
+                                String[] values = valueOfIID.split(",");
+                                for(String value : values) {
+                                    tempListOfValues.add(String.valueOf(value));
+                                }
+                            } else {
+                                tempListOfValues.add(valueOfIID);
+                            }
+
+
                         } else {
                             tempListOfErrors.add("5");
                         }
